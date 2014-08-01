@@ -1,0 +1,56 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"    
+    >
+
+    <ImageView
+        android:id="@+id/imageViewAdIcon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_margin="5dp"
+        android:src="@drawable/ic_launcher"        
+        />
+    
+     <ImageView
+        android:id="@+id/imageViewAdScreenshot"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="5dp"
+        android:src="@drawable/ic_plusone_tall_off_client"
+         />
+    
+    <TextView
+        android:id="@+id/textViewAdTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/imageViewAdIcon"
+        android:layout_alignParentTop="true"
+        android:text="Title" />
+    
+    <TextView
+        android:id="@+id/textViewAdDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewAdTitle"
+        android:layout_toRightOf="@id/imageViewAdIcon"
+        android:layout_toLeftOf="@id/imageViewAdScreenshot"
+        android:text="Description" />
+    
+    <TextView
+        android:id="@+id/textViewAdRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewAdDescription"
+        android:layout_toRightOf="@id/imageViewAdIcon"
+        android:layout_toLeftOf="@id/imageViewAdScreenshot"
+        android:text="Rating" />
+    
+   
+    
+    
+</RelativeLayout>
