@@ -4,9 +4,17 @@
     tools:context="com.nspl.inmobisample.MainActivity" >
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/ShowBothAds"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never"/>
+        android:checkable="true"
+        android:checked="false"
+        android:title="@string/showbothads"/>
+    
+    <item
+        android:id="@+id/SimulateInMobiFailure"
+        android:orderInCategory="90"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@string/simulateinmobifailure"/>
 
 </menu>

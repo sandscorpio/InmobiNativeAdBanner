@@ -5,9 +5,9 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="9"
         android:targetSdkVersion="20" />
-    
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -15,14 +15,14 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_LOGS" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
-	<uses-permission android:name="android.permission.READ_CALENDAR"/>
-	<uses-permission android:name="android.permission.WRITE_CALENDAR"/>
-   	<uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
-	
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -41,7 +41,10 @@
             android:name="com.inmobi.androidsdk.IMBrowserActivity"
             android:configChanges="keyboardHidden|orientation|keyboard|smallestScreenSize|screenSize"
             android:hardwareAccelerated="true" />
-        
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
+
         <receiver
             android:name="com.inmobi.commons.analytics.androidsdk.IMAdTrackerReceiver"
             android:enabled="true"
@@ -50,13 +53,14 @@
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
         </receiver>
-        
-  		<service android:enabled="true" android:name="com.inmobi.commons.internal.ActivityRecognitionManager" />
-    </application>
-    
 
-    <meta-data
-        android:name="com.google.android.gms.version"
-        android:value="@integer/google_play_services_version" />
+        <service
+            android:name="com.inmobi.commons.internal.ActivityRecognitionManager"
+            android:enabled="true" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+    </application>
 
 </manifest>

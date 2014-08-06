@@ -4,5 +4,11 @@
     <string name="app_name">InMobiAddSample</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="add_unit_id">ca-app-pub-3411154605218905/6535457275</string>
+    <string name="unableToSave">Unable To Save</string>
+    <string name="showbothads">Show Ads From Both Providers</string>
+    <string name="simulateinmobifailure">Simulate In Mobi Failure</string>
+    <string name="key_show_ads_from_both_providers">ShowAdsFromBothProviders</string>
+    <string name="key_simulate_inmobi_failure">SimulateInMobiFailure</string>
 
 </resources>

@@ -1,40 +1,106 @@
 package com.nspl.inmobisample;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.google.gson.Gson;
 import com.inmobi.commons.InMobi;
 import com.inmobi.monetization.IMErrorCode;
 import com.inmobi.monetization.IMNative;
 import com.inmobi.monetization.IMNativeListener;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewCallback;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
+import com.koushikdutta.urlimageviewhelper.*;
 
+import android.R.color;
 import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
+import android.webkit.WebView.FindListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.graphics.*;;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 
 	InMobiNativeAd newAd;
+	AdView adView;
+	SavedValues savedValues;
+	boolean showAdsFromBothProviders;
+	boolean simulateInMobiFailure;
+	IMNative nativeAd;
+	
+	Button buttonToast;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		savedValues = SavedValues.Instance(this);
+		
+		showAdsFromBothProviders = savedValues.loadKeyValue(getString(R.string.key_show_ads_from_both_providers), false);
+		simulateInMobiFailure = savedValues.loadKeyValue(getString(R.string.key_simulate_inmobi_failure), false);
 
+		if (simulateInMobiFailure)		
+			InMobi.initialize(this, "7a71816df2914e75bbf936856dc10939");   //incorrect Property Id will cause it to fail
+		else
+			InMobi.initialize(this, "7a71816df2914e75bbf936856dc10936");
+
+		nativeAd = new IMNative(nativeListener);
+		RelativeLayout relativeLayoutInMobiAd = (RelativeLayout) findViewById(R.id.relativeLayoutInMobiAd);
+		relativeLayoutInMobiAd.setVisibility(View.GONE);		
+		nativeAd.loadAd();
+		
+		nativeAd.attachToView((ViewGroup) relativeLayoutInMobiAd);
+		
+		if (showAdsFromBothProviders){
+			loadAdMob();			
+		}
+		Log.v("TAG", "Activity loaded and native add asked for");
+		
+		buttonToast = (Button) findViewById(R.id.buttonToast);
+		buttonToast.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				MainActivity.showToast(getApplicationContext(), MainActivity.this, "Custom Toast Loaded", Toast.LENGTH_LONG);
+			}
+		});
+		
+		
+		
+	}
+	
 	IMNativeListener nativeListener = new IMNativeListener() {
 		@Override
 		public void onNativeRequestSucceeded(final IMNative nativeAd) {		
+			
+			
 			if (nativeAd != null){				
+				RelativeLayout relativeLayoutInMobiAd = (RelativeLayout) findViewById(R.id.relativeLayoutInMobiAd);
+				relativeLayoutInMobiAd.setVisibility(View.VISIBLE);
+				
 				Log.v("TAG", "Add is loaded, Content asked for");
 				String content = nativeAd.getContent();
 				Gson gson = new Gson();
@@ -106,28 +172,72 @@ public class MainActivity extends ActionBarActivity {
 
 				Log.v("TAG", content);
 			}else{
+				RelativeLayout relativeLayoutInMobiAd = (RelativeLayout) findViewById(R.id.relativeLayoutInMobiAd);
+				relativeLayoutInMobiAd.setVisibility(View.GONE);
 				Log.v("TAG", "Add is null");
+				if (!showAdsFromBothProviders)
+					loadAdMob();
 			}
 		}
 		@Override
 		public void onNativeRequestFailed(IMErrorCode errorCode) {
 			Log.v("TAG", "Add loading failed");
 			android.util.Log.e("TAG", "native ad failed");
+			RelativeLayout relativeLayoutInMobiAd = (RelativeLayout) findViewById(R.id.relativeLayoutInMobiAd);
+			relativeLayoutInMobiAd.setVisibility(View.GONE);
+			if(!showAdsFromBothProviders)
+				loadAdMob();
 		}
 	};
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-
-		InMobi.initialize(this, "f5ecc6679216457b87cd953195c1890c");
-		//InMobi.initialize(this, "f71cf2b4513749a89e81ff4704680e14");
-
-		IMNative nativeAd = new IMNative(nativeListener);
-
-		nativeAd.loadAd();
-		Log.v("TAG", "Activity loaded and native add asked for");
+	protected void onStop() {
+		if (nativeAd != null)
+			nativeAd.detachFromView();
+		super.onStop();
+	};
+	
+	private void loadAdMob(){
+	
+		AdRequest request = new AdRequest.Builder()	    
+	    .addTestDevice(Secure.getString(getApplicationContext().getContentResolver(),Secure.ANDROID_ID))  // My Galaxy Nexus test phone
+	    .build();
+		
+		adView = (AdView) findViewById(R.id.adView);
+		
+		if (isTablet(getApplicationContext())){
+			adView.setAdSize(AdSize.LEADERBOARD);
+		}
+		
+		adView.loadAd(request);
+		
+		//.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+	}
+	
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub		
+		//showToast(getApplicationContext(), this, "Custom Toast Loaded", Toast.LENGTH_LONG);
+		super.onBackPressed();
+	}
+	
+	public boolean isTablet(Context context) {
+	    return (context.getResources().getConfiguration().screenLayout
+	            & Configuration.SCREENLAYOUT_SIZE_MASK)
+	            >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+	}
+	
+	
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		MenuItem menuItem = menu.findItem(R.id.ShowBothAds);
+		menuItem.setChecked(savedValues.loadKeyValue(getString(R.string.key_show_ads_from_both_providers), false));
+		MenuItem menuItem2 = menu.findItem(R.id.SimulateInMobiFailure);
+		menuItem2.setChecked(savedValues.loadKeyValue(getString(R.string.key_simulate_inmobi_failure), false));
+		Log.v("onPrepareOptionsMenuSelected", "true");
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -143,7 +253,22 @@ public class MainActivity extends ActionBarActivity {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		if (id == R.id.ShowBothAds) {
+			Log.v("ShowBothAds Clicked", "true");
+			item.setChecked(!item.isChecked());
+			savedValues.saveKeyValue(getString(R.string.key_show_ads_from_both_providers), item.isChecked());
+			Intent mainIntent = new Intent(this, MainActivity.class);
+			this.startActivity(mainIntent);
+			finish();
+			return true;
+		}else if (id == R.id.SimulateInMobiFailure) {
+			Log.v("Simulate InMobi Error Clicked", "true");
+			item.setChecked(!item.isChecked());
+			savedValues.saveKeyValue(getString(R.string.key_simulate_inmobi_failure), item.isChecked());
+			
+			Intent mainIntent = new Intent(this, MainActivity.class);
+			this.startActivity(mainIntent);
+			finish();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -153,6 +278,40 @@ public class MainActivity extends ActionBarActivity {
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		nativeAd = null;
 
+	}
+	
+	private static void showToast(final Context context, final Activity activity, String text, int duration){
+		LayoutInflater inflater = activity.getLayoutInflater();
+		View layout = inflater.inflate(R.layout.toast_custom,
+		                               (ViewGroup) activity.findViewById(R.id.toast_layout_root));
+
+		TextView textView = (TextView) layout.findViewById(R.id.text);
+		textView.setText(text);
+		
+		ImageView imageViewLogo = (ImageView) layout.findViewById(R.id.imageViewToastLogo);
+		imageViewLogo.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				TextView textViewSponsored = (TextView) activity.findViewById(R.id.textViewAdSponsored);
+				Log.v("Toast Clicked","true");
+				if (textViewSponsored.getText().equals("Sponsored")){
+					textViewSponsored.setTextColor(Color.RED);
+					textViewSponsored.setText("Sponsored_");
+				}else{
+					textViewSponsored.setTextColor(Color.GREEN);
+					textViewSponsored.setText("Sponsored_");
+				}				
+			}
+		});
+
+		Toast toast = new Toast(context);
+		toast.setGravity(Gravity.BOTTOM, 0, 250);
+		toast.setDuration(duration);
+		toast.setView(layout);
+		toast.show();
 	}
 }
